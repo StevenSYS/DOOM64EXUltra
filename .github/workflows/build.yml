@@ -1,0 +1,40 @@
+name: Build
+on: [push, pull_request]
+jobs:
+  build:
+    name: Build ${{matrix.build-targets.name}}
+    runs-on: ${{matrix.build-targets.os}}
+    strategy:
+      matrix:
+        build-targets:
+          - {
+            name: "Linux (x64)",
+            os: "ubuntu-latest"
+          }
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Update Package Lists (Linux)
+        if: contains(matrix.build-targets.os, 'ubuntu')
+        run: sudo apt-get update
+      
+      - name: Install Packages (Linux)
+        if: contains(matrix.build-targets.os, 'ubuntu')
+        run: sudo apt-get install libpng-dev
+      
+      - uses: libsdl-org/setup-sdl@main
+        id: sdl
+        with:
+          install-linux-dependencies: true
+          version: 3-latest
+      
+      - name: Configure CMake
+        run: >
+          cmake -S .
+          -DCMAKE_C_COMPILER=gcc
+          -DCMAKE_BUILD_TYPE=Release
+          -DNO_FMOD=ON
+          -G "Unix Makefiles"
+      
+      - name: Build
+        run: cmake --build .

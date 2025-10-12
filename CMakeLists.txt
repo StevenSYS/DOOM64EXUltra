@@ -2,44 +2,50 @@ cmake_minimum_required(VERSION 3.11)
 
 project(DOOM64 LANGUAGES C VERSION 5.0.0.0)
 
-if(NOT DEFINED ENV{FMOD_STUDIO_SDK_ROOT})
-	message(
-		FATAL_ERROR
-		"FMOD_STUDIO_SDK_ROOT environment variable is not set.\n"
-		"Point it to the root of the FMOD studio SDK that can be downloaded on https://www.fmod.com/download#fmodstudio"
-	)
-endif()
+option(NO_FMOD "Build using a dummy FMOD replacement" OFF)
 
-if(
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" OR
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "EM64T" OR
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64"
-)
-	set(CPU_ARCH "x86_64")
-elseif(
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "X86" OR
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "i386" OR
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "i686"
-)
-	set(CPU_ARCH "x86")
-elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
-	set(CPU_ARCH "arm")
-elseif(
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64" OR
-	CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64"
-)
-	set(CPU_ARCH "arm64")
+if(NO_FMOD)
+	set(FMOD_INC_DIR "src/dummyFMOD")
 else()
-	message(FATAL_ERROR "FMOD: Unsupported CPU architecture")
+	if(NOT DEFINED ENV{FMOD_STUDIO_SDK_ROOT})
+		message(
+			FATAL_ERROR
+			"FMOD_STUDIO_SDK_ROOT environment variable is not set.\n"
+			"Point it to the root of the FMOD studio SDK that can be downloaded on https://www.fmod.com/download#fmodstudio"
+		)
+	endif()
+	
+	if(
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" OR
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "EM64T" OR
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64"
+	)
+		set(CPU_ARCH "x86_64")
+	elseif(
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "X86" OR
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "i386" OR
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "i686"
+	)
+		set(CPU_ARCH "x86")
+	elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+		set(CPU_ARCH "arm")
+	elseif(
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64" OR
+		CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64"
+	)
+		set(CPU_ARCH "arm64")
+	else()
+		message(FATAL_ERROR "FMOD: Unsupported CPU architecture")
+	endif()
+	
+	set(FMOD_INC_DIR "$ENV{FMOD_STUDIO_SDK_ROOT}/api/core/inc")
+	set(FMOD_LIB_DIR "$ENV{FMOD_STUDIO_SDK_ROOT}/api/core/lib/${CPU_ARCH}")
 endif()
-
-set(FMOD_INC_DIR "$ENV{FMOD_STUDIO_SDK_ROOT}/api/core/inc")
-set(FMOD_LIB_DIR "$ENV{FMOD_STUDIO_SDK_ROOT}/api/core/lib/${CPU_ARCH}")
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${FMOD_INC_DIR} -Wunknown-pragmas -fwrapv -MD")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I-Wunknown-pragmas -fwrapv -MD")
 set(CMAKE_EXE_LINKER_FLAGS "-L${FMOD_LIB_DIR}")
 
 set(CMAKE_C_FLAGS_DEBUG "-g -Wall")
@@ -52,6 +58,7 @@ find_package(ZLIB REQUIRED)
 include_directories(
 	${libpng_INCLUDE_DIRS}
 	${OpenGL_INCLUDE_DIRS}
+	${FMOD_INC_DIR}
 )
 
 set(SOURCE_DIR "src/engine")
@@ -152,7 +159,10 @@ target_link_libraries(
 	SDL3::SDL3
 	png
 	${OPENGL_LIBRARY}
-	fmod
 	z
 	m
 )
+
+if(NOT NO_FMOD)
+	target_link_libraries(${PROJECT_NAME} fmod)
+endif()
