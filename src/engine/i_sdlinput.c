@@ -614,12 +614,18 @@ void I_GetEvent(SDL_Event* Event) {
 	unsigned int tic = gametic;
 
 	I_GamepadHandleSDLEvent(Event);
-	
+
 	switch (Event->type) {
 	case SDL_EVENT_KEY_DOWN:
 		if (Event->key.repeat) {
 			break;
 		}
+
+		if ((Event->key.key == SDLK_RETURN && (Event->key.mod & SDL_KMOD_ALT))) {
+			I_ToggleFullscreen();
+			break;
+		}
+
 		event.type = ev_keydown;
 		event.data1 = I_TranslateKey(&Event->key);
 		if(event.data1) {
