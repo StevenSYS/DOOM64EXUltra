@@ -20,13 +20,15 @@
 #include "m_menu.h"
 #include "i_system.h"
 
+extern void M_EndGame();
+
 MENU_INIT {
 	return;
 }
 
 MENU_RENDER {
 	if (igButton("Yes", (ImVec2){ 0.0f, 0.0f })) {
-		I_Quit();
+		M_EndGame();
 	}
 	
 	if (igButton("No", (ImVec2){ 0.0f, 0.0f })) {
@@ -35,4 +37,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(menu_quitGame, "Quit DOOM 64?", NULL, true);
+MENU_VAR(menu_quitMenu, "Quit To Main Menu?", NULL, true);

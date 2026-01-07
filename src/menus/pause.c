@@ -20,13 +20,46 @@
 #include "tools.h"
 #include "m_menu.h"
 
+MENU_EXTERNAL(menu_options);
+MENU_EXTERNAL(menu_quitMenu);
+MENU_EXTERNAL(menu_restartLevel);
+MENU_EXTERNAL(menu_features);
+MENU_EXTERNAL(menu_loadGame);
+MENU_EXTERNAL(menu_saveGame);
+MENU_EXTERNAL(menu_quitGame);
+
 MENU_INIT {
-	STUB();
 	return;
 }
 
 MENU_RENDER {
-	STUB();
+	if (igButton("Options", (ImVec2){ 0.0f, 0.0f })) {
+		M_SetupMenu(&menu_options, false);
+	}
+	
+	if (igButton("Main Menu", (ImVec2){ 0.0f, 0.0f })) {
+		M_SetupMenu(&menu_quitMenu, false);
+	}
+	
+	if (igButton("Restart Level", (ImVec2){ 0.0f, 0.0f })) {
+		M_SetupMenu(&menu_restartLevel, false);
+	}
+	
+	if (igButton("Features", (ImVec2){ 0.0f, 0.0f })) {
+		STUB();
+	}
+	
+	if (igButton("Load Game", (ImVec2){ 0.0f, 0.0f })) {
+		M_SetupMenu(&menu_loadGame, false);
+	}
+	
+	if (igButton("Save Game", (ImVec2){ 0.0f, 0.0f })) {
+		M_SetupMenu(&menu_saveGame, false);
+	}
+	
+	if (igButton("Quit Game", (ImVec2){ 0.0f, 0.0f })) {
+		M_SetupMenu(&menu_quitGame, false);
+	}
 	return;
 }
 

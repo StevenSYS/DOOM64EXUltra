@@ -45,7 +45,12 @@
 #include "g_settings.h"
 #include "gl_main.h"
 #include "doomdef.h"
+#include "con_cvar.h"
 #include "i_system_io.h"
+#include "s_sound.h"
+#include "g_game.h"
+#include "sounds.h"
+#include "progInfo.h"
 
 
 int      myargc;
@@ -401,4 +406,53 @@ unsigned int M_StringHash(char* str) {
 	}
 
 	return hash;
+}
+
+//
+// M_SetCvar
+//
+
+void M_SetCvar(
+	cvar_t *cvar,
+	float value
+) {
+	if (cvar->value == value) {
+		return;
+	}
+
+	CON_CvarSetValue(cvar->name, value);
+	return;
+}
+
+//
+// M_QuickSave
+//
+
+void M_QuickSave() {
+	if (!usergame) {
+		S_StartSound(NULL, sfx_oof);
+		return;
+	}
+	
+	if (gamestate != GS_LEVEL) {
+		return;
+	}
+	
+	G_SaveGame(SLOT_QUICKSAVE, "quicksave");
+	return;
+}
+
+//
+// M_QuickLoad
+//
+
+void M_QuickLoad() {
+	char *filepath = I_GetUserFile(FILE_QUICKSAVE);
+	
+	if (M_FileExists(filepath)) {
+		G_LoadGame(filepath);
+	}
+	
+	free(filepath);
+	return;
 }

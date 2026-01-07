@@ -38,9 +38,9 @@ static unsigned int i;
 
 MENU_EXTERNAL(menu_episode);
 
-static void m_chooseSkill(int choice) {
+static void M_ChooseSkill(int choice) {
 	G_DeferedInitNew(choice, map);
-	m_clearMenus();
+	M_ClearMenus();
 	allowMenu = false;
 	return;
 }
@@ -52,7 +52,7 @@ MENU_INIT {
 MENU_RENDER {
 	for (i = 0; i < LENGTH_SKILLS; i++) {
 		if (igButton(skills[i], (ImVec2){ 0.0f, 0.0f })) {
-			m_chooseSkill(i);
+			M_ChooseSkill(i);
 		}
 	}
 	return;

@@ -62,6 +62,7 @@ static int      screenalphatext;
 static int      creditstage;
 static int      creditscreenstage;
 static boolean	fadesplash;
+static boolean waitingMenuRender;
 
 boolean        setWindow = true;
 int             validcount = 1;
@@ -89,6 +90,8 @@ void D_ProcessEvents(void);
 void G_BuildTiccmd(ticcmd_t* cmd);
 
 #define STRPAUSED    "Paused"
+
+extern void (*endMenuFunc)();
 
 CVAR_EXTERNAL(sv_nomonsters);
 CVAR_EXTERNAL(sv_fastmonsters);
@@ -140,7 +143,7 @@ void D_ProcessEvents(void) {
 			}
 		}
 		
-		if (m_event(ev)) {
+		if (M_Responder(ev)) {
 			continue; // menu ate the event
 		}
 
@@ -167,11 +170,12 @@ int GetLowTic(void);
 boolean PlayersInGame(void);
 
 static void D_DrawInterface(void) {
-	
 	if (menuActive) {
 		imgui_start();
 		
-		m_render();
+		M_Drawer();
+		
+		waitingMenuRender = true;
 	}
 
 	CON_Draw();
@@ -187,8 +191,12 @@ static void D_DrawInterface(void) {
 		Draw_BigText(-1, 64, WHITE, STRPAUSED);
 	}
 	
-	if (menuActive) {
+	if (
+		menuActive ||
+		waitingMenuRender
+	) {
 		imgui_render();
+		waitingMenuRender = false;
 	}
 }
 
@@ -471,7 +479,7 @@ static void Title_Start(void) {
 	allowClearMenu = false;
 
 	S_StartMusic(W_GetNumForName("MUSTITLE"));
-	m_startMainMenu();
+	M_StartMainMenu();
 }
 
 //
@@ -933,7 +941,7 @@ void D_DoomMain(void) {
 	P_Init();
 
 	I_Printf("M_Init: Init miscellaneous info.\n");
-	m_init();
+	M_Init();
 
 	I_Printf("NET_Init: Init network subsystem.\n");
 	NET_Init();

@@ -33,10 +33,24 @@
 #include "con_cvar.h"
 #include "progInfo.h"
 
+#define RESTART_REQUIRED \
+	if (!g_in_load_settings) { \
+		I_Printf("Restart required for changes to take affect.\n"); \
+	}
+
+#define LESS_THAN_SET(_var, _value) \
+	if (_var < _value) { \
+		_var = _value; \
+	}
+
+extern boolean g_in_load_settings;
+
 SDL_Window* window = NULL;
 SDL_GLContext   glContext = NULL;
 
 CVAR(r_trishader, 1);
+CVAR_CMD(v_width, 0) { RESTART_REQUIRED; }
+CVAR_CMD(v_height, 0) { RESTART_REQUIRED; }
 CVAR(v_checkratio, 0);
 CVAR(v_fullscreen, 0);
 CVAR_CMD(v_vsync, 1) {
@@ -116,8 +130,19 @@ void I_InitScreen(void) {
 		initial_h = native_h;
 	}
 	else {
-		initial_w = (int)(native_w * 0.8f);
-		initial_h = (int)(native_h * 0.8f);
+		if (v_width.value < MIN_WIDTH) {
+			v_width.value = (float)(native_w / 1.25);
+		}
+		
+		if (v_height.value < MIN_HEIGHT) {
+			v_height.value = (float)(native_h / 1.25);
+		}
+		
+		LESS_THAN_SET(v_width.value, MIN_WIDTH);
+		LESS_THAN_SET(v_height.value, MIN_HEIGHT);
+		
+		initial_w = (int)v_width.value;
+		initial_h = (int)v_height.value;
 	}
 
 	video_width = initial_w;
@@ -156,7 +181,7 @@ void I_InitScreen(void) {
 	if (glContext) { SDL_GL_DestroyContext(glContext); glContext = NULL; }
 	if (window) { SDL_DestroyWindow(window); window = NULL; }
 
-	sprintf(title, PROGRAM_NAME " compiled on: %s", version_date);
+	sprintf(title, PROGRAM_NAME " v" PROGRAM_VERSION " - %s", PROGRAM_COMPDATE);
 	window = SDL_CreateWindow(title, initial_w, initial_h, flags);
 	if (!window) {
 		I_Error("I_InitScreen: Failed to create window");
@@ -348,6 +373,8 @@ void I_ToggleFullscreen(void) {
 
 void V_RegisterCvars(void) {
 	CON_CvarRegister(&r_trishader);
+	CON_CvarRegister(&v_width);
+	CON_CvarRegister(&v_height);
 	CON_CvarRegister(&v_checkratio);
 	CON_CvarRegister(&v_vsync);
 	CON_CvarRegister(&v_fullscreen);

@@ -20,9 +20,7 @@
 
 #include "doomtype.h"
 #include "tables.h"
-
-// build version
-extern const char version_date[];
+#include "progInfo.h"
 
 void*		dmemcpy(void* s1, const void* s2, unsigned int n);
 void*		dmemset(void* s, int c, unsigned int n);
@@ -87,7 +85,7 @@ extern float D_fabs(float x);
 #define MAXPLAYERS      4
 
 // State updates, number of tics / second.
-#define TICRATE         30
+#define TICRATE         FPS
 
 // The current state of the game: whether we are
 // playing, gazing at the intermission screen,

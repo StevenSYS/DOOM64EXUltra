@@ -613,7 +613,6 @@ void I_GetEvent(SDL_Event* Event) {
 	unsigned int mwheeluptic = 0, mwheeldowntic = 0;
 	unsigned int tic = gametic;
 
-	imgui_event(Event);
 	I_GamepadHandleSDLEvent(Event);
 
 	switch (Event->type) {
@@ -710,6 +709,11 @@ void I_GetEvent(SDL_Event* Event) {
 		D_PostEvent(&event);
 		mwheeldowntic = 0;
 	}
+	
+	if (menuActive) {
+		imgui_event(Event);
+	}
+	return;
 }
 
 //

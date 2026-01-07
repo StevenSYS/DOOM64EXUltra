@@ -39,10 +39,10 @@ static unsigned int episodeCount = 0;
 
 static episode_t *episodes;
 
-static void m_chooseEpisode(unsigned int episode) {
+static void chooseEpisode(unsigned int episode) {
 	/* Taken and modified from the original menu code */
 	map = P_GetEpisode((int)episode)->mapid;
-	m_setupMenu(&menu_skill);
+	M_SetupMenu(&menu_skill, false);
 	return;
 }
 
@@ -77,7 +77,7 @@ MENU_INIT {
 MENU_RENDER {
 	for (i = 0; i < episodeCount; i++) {
 		if (igButton(episodes[i].name, (ImVec2){ 0.0f, 0.0f })) {
-			m_chooseEpisode(i);
+			chooseEpisode(i);
 		}
 	}
 	return;

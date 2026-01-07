@@ -26,10 +26,10 @@
 #define MENU_VAR(_vName, _name, _prev, _autoPrev) \
 	menu_t _vName = { \
 		_name, \
-		&init, \
-		&render, \
 		_prev, \
-		_autoPrev \
+		_autoPrev, \
+		&init, \
+		&render \
 	}
 
 #define MENU_INIT static void init()
@@ -46,23 +46,30 @@ typedef void (menuInit)();
 /* Structs */
 typedef struct menu_s {
 	const char *title;
-	menuInit *init;
-	menuRender *render;
 	struct menu_s *previous;
 	boolean autoPrev;
+	
+	/* Functions */
+	menuInit *init;
+	menuRender *render;
 } menu_t;
 
 /* Functions */
-void m_setCvar(
+void M_SetCvar(
 	cvar_t *cvar,
 	float value
 );
-boolean m_event(event_t *event);
-void m_setupMenu(menu_t *next);
-void m_render();
-void m_init();
-void m_startControlPanel(boolean forceNext);
-void m_startMainMenu();
-void m_clearMenus();
+boolean M_Responder(event_t *event);
+void M_SetupMenu(
+	menu_t *next,
+	boolean noPrev
+);
+void M_SetupPrevMenu();
+void M_Ticker();
+void M_Drawer();
+void M_Init();
+void M_StartControlPanel();
+void M_StartMainMenu();
+void M_ClearMenus();
 
 #endif

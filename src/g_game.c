@@ -59,9 +59,9 @@
 MENU_EXTERNAL(menu_saveGame);
 MENU_EXTERNAL(menu_loadGame);
 
-extern void m_quickSave(void);
-extern void m_quickLoad(void);
-extern void m_changeGammaLevel(int);
+extern void M_QuickSave(void);
+extern void M_QuickLoad(void);
+extern void M_ChangeGammaLevel(int);
 
 void        G_PlayerReborn(int player);
 void        G_InitNew(skill_t skill, int map);
@@ -225,7 +225,7 @@ static CMD(Button) {
 //
 
 static CMD(QuickSave) {
-	m_quickSave();
+	M_QuickSave();
 }
 
 //
@@ -233,7 +233,7 @@ static CMD(QuickSave) {
 //
 
 static CMD(QuickLoad) {
-	m_quickLoad();
+	M_QuickLoad();
 }
 
 //
@@ -241,8 +241,10 @@ static CMD(QuickLoad) {
 //
 
 static CMD(Save) {
-	m_startControlPanel(true);
-	m_setupMenu(&menu_saveGame);
+	if (!menuActive) {
+		M_StartControlPanel();
+		M_SetupMenu(&menu_saveGame, true);
+	}
 }
 
 //
@@ -250,8 +252,10 @@ static CMD(Save) {
 //
 
 static CMD(Load) {
-	m_startControlPanel(true);
-	m_setupMenu(&menu_loadGame);
+	if (!menuActive) {
+		M_StartControlPanel();
+		M_SetupMenu(&menu_loadGame, true);
+	}
 }
 
 //
@@ -267,7 +271,7 @@ static CMD(ScreenShot) {
 //
 
 static CMD(Gamma) {
-	m_changeGammaLevel(2);
+	M_ChangeGammaLevel(2);
 }
 
 //
@@ -486,7 +490,7 @@ static CMD(Map) {
 			if (gamestate == GS_LEVEL) {
 
 				if (menuActive) {
-					m_clearMenus();
+					M_ClearMenus();
 				}
 
 				M_CheatWarp(NULL, param[0]);

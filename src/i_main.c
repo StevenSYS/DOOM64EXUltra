@@ -30,8 +30,6 @@
 #include "m_misc.h"
 #include "i_system.h"
 
-const char version_date[] = __DATE__;
-
 //
 // dmemcpy
 //

@@ -14,25 +14,19 @@
 //
 //-----------------------------------------------------------------------------
 
+#if 0
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>
 
 #include "m_menu.h"
-#include "i_system.h"
 
 MENU_INIT {
 	return;
 }
 
 MENU_RENDER {
-	if (igButton("Yes", (ImVec2){ 0.0f, 0.0f })) {
-		I_Quit();
-	}
-	
-	if (igButton("No", (ImVec2){ 0.0f, 0.0f })) {
-		M_SetupPrevMenu();
-	}
 	return;
 }
 
-MENU_VAR(menu_quitGame, "Quit DOOM 64?", NULL, true);
+MENU_VAR(menu_templete, "Templete", NULL, false);
+#endif

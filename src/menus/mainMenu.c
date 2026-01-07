@@ -20,30 +20,33 @@
 #include "tools.h"
 #include "m_menu.h"
 
+extern boolean allowMenu;
+
 MENU_EXTERNAL(menu_episode);
 MENU_EXTERNAL(menu_loadGame);
 MENU_EXTERNAL(menu_options);
 MENU_EXTERNAL(menu_quitGame);
 
 MENU_INIT {
+	allowMenu = true;
 	return;
 }
 
 MENU_RENDER {
 	if (igButton("New Game", (ImVec2){ 0.0f, 0.0f })) {
-		m_setupMenu(&menu_episode);
+		M_SetupMenu(&menu_episode, false);
 	}
 	
 	if (igButton("Load Game", (ImVec2){ 0.0f, 0.0f })) {
-		m_setupMenu(&menu_loadGame);
+		M_SetupMenu(&menu_loadGame, false);
 	}
 	
 	if (igButton("Options", (ImVec2){ 0.0f, 0.0f })) {
-		m_setupMenu(&menu_options);
+		M_SetupMenu(&menu_options, false);
 	}
 	
 	if (igButton("Quit Game", (ImVec2){ 0.0f, 0.0f })) {
-		m_setupMenu(&menu_quitGame);
+		M_SetupMenu(&menu_quitGame, false);
 	}
 	return;
 }
