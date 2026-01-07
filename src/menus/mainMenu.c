@@ -50,4 +50,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(mainMenu, "Main Menu", NULL, false);
+MENU_VAR(mainMenu, "Main Menu", false);

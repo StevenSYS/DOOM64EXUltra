@@ -1816,7 +1816,7 @@ void P_PlayerInSpecialSector(player_t* player) {
 	if (sector->flags & MS_SECRET) {
 		player->secretcount++;
 		player->message = FOUNDSECRET;
-		player->messagepic = 40;
+		// player->messagepic = 40;
 		sector->flags &= ~MS_SECRET;
 	}
 

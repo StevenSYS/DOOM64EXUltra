@@ -30,4 +30,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(saveGame, "Save Game", NULL, true);
+MENU_VAR(saveGame, "Save Game", true);

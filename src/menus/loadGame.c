@@ -30,4 +30,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(loadGame, "Load Game", NULL, true);
+MENU_VAR(loadGame, "Load Game", true);

@@ -17,7 +17,7 @@
 
 /* - File - */
 #define FILE_SRCPORT "doom64ex-ultra.wad"
-#define FILE_QUICKSAVE "doomsavq.dsg"
+#define FILE_QUICKSAVE "doomsav7.dsg"
 
 /* - Path - */
 #define PATH_PREF "doom64ex-ultra"
@@ -33,7 +33,7 @@
 #define MIN_HEIGHT 200.0f
 
 /* - Slot - */
-#define SLOT_QUICKSAVE 8
+#define SLOT_QUICKSAVE 7
 
 /* - Misc. - */
 #define FPS 30

@@ -297,7 +297,7 @@ void I_InitVideo(void) {
 
 #endif
 
-	if (!SDL_Init(SDL_INIT_VIDEO)) {
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
 		I_Error("ERROR - Failed to initialize SDL");
 		return;
 	}

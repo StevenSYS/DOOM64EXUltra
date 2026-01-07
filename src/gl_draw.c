@@ -745,12 +745,10 @@ int Draw_SmallText(int x, int y, rcolor color, const char* string) {
 		c = string[i];
 		if (c == '\n' || c == '\t') {
 			continue;
-		}
-		else if (c == 0x20) {
+		} else if (c == 0x20) {
 			x += 4;
 			continue;
-		}
-		else {
+		} else {
 			if (c >= '0' && c <= '9') index = (c - '0') + SM_NUMBERS;
 			if (c >= 'A' && c <= 'Z') index = (c - 'A') + SM_FONT1;
 			if (c >= 'a' && c <= 'z') index = (c - 'a') + SM_FONT2;
@@ -764,14 +762,14 @@ int Draw_SmallText(int x, int y, rcolor color, const char* string) {
 			if (c == '/') {
 				c = string[++i];
 				switch (c) {
-				case 'u': index = SM_MICONS + 17; break;
-				case 'd': index = SM_MICONS + 16; break;
-				case 'r': index = SM_MICONS + 18; break;
-				case 'l': index = SM_MICONS + 0;  break;
-				case 'b': index = SM_MICONS + 1;  break;
-				case 't': index = SM_THERMO + 0;  break;
-				case 's': index = SM_THERMO + 1;  break;
-				default: return 0;
+					case 'u': index = SM_MICONS + 17; break;
+					case 'd': index = SM_MICONS + 16; break;
+					case 'r': index = SM_MICONS + 18; break;
+					case 'l': index = SM_MICONS + 0;  break;
+					case 'b': index = SM_MICONS + 1;  break;
+					case 't': index = SM_THERMO + 0;  break;
+					case 's': index = SM_THERMO + 1;  break;
+					default: return 0;
 				}
 			}
 
@@ -795,7 +793,7 @@ int Draw_SmallText(int x, int y, rcolor color, const char* string) {
 
 			if (devparm) { vertCount += 4; }
 
-			x += (int)(symboldata[index].w * scale_factor);
+			x += (int)(symboldata[index].w * scale_factor + 1);
 		}
 	}
 

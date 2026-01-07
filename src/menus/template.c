@@ -28,5 +28,5 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(templete, "Templete", NULL, false);
+MENU_VAR(templete, "Templete", true);
 #endif

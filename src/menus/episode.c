@@ -15,9 +15,9 @@
 //-----------------------------------------------------------------------------
 
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#include <string.h>
 #include <cimgui/cimgui.h>
 
-#include "tools.h"
 #include "m_menu.h"
 #include "z_zone.h"
 #include "p_setup.h"
@@ -83,4 +83,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(episode, "Episode Select", &menu_mainMenu, false);
+MENU_VAR(episode, "Episode Select", true);

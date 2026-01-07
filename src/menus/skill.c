@@ -58,4 +58,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(skill, "Skill Select", &menu_episode, false);
+MENU_VAR(skill, "Skill Select", true);

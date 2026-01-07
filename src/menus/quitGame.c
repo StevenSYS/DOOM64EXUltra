@@ -35,4 +35,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(quitGame, "Quit DOOM 64?", NULL, true);
+MENU_VAR(quitGame, "Quit DOOM 64?", true);

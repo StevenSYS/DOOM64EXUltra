@@ -37,4 +37,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(restartLevel, "Quit Current Game?", NULL, true);
+MENU_VAR(restartLevel, "Quit Current Game?", true);

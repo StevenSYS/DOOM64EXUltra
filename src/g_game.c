@@ -651,8 +651,14 @@ static CMD(ListMaps) {
 //
 
 static CMD(Toggle) {
+	if (!param[0]) {
+		I_Printf(" toggle <cvar>\n");
+		return;
+	}
+	
 	cvar_t *cvar = CON_CvarGet(param[0]);
 	cvar->value = !cvar->value;
+	return;
 }
 
 //
@@ -1737,6 +1743,9 @@ void G_Init(void) {
 	G_AddCommand("enddemo", CMD_EndDemo, 0);
 	G_AddCommand("listmaps", CMD_ListMaps, 0);
 	
+	/* EX Ultra */
+	G_AddCommand("toggle", CMD_Toggle, 0);
+	return;
 }
 
 //

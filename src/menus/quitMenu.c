@@ -37,4 +37,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(quitMenu, "Quit To Main Menu?", NULL, true);
+MENU_VAR(quitMenu, "Quit To Main Menu?", true);

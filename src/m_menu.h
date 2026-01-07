@@ -23,11 +23,11 @@
 #include "con_cvar.h"
 
 /* Macros */
-#define MENU_VAR(_vName, _name, _prev, _autoPrev) \
+#define MENU_VAR(_vName, _name, _enablePrev) \
 	menu_t menu_ ## _vName = { \
 		_name, \
-		_prev, \
-		_autoPrev, \
+		NULL, \
+		_enablePrev, \
 		&init, \
 		&render \
 	}
@@ -46,8 +46,8 @@ typedef void (menuInit)();
 /* Structs */
 typedef struct menu_s {
 	const char *title;
-	struct menu_s *previous;
-	boolean autoPrev;
+	struct menu_s *prev;
+	boolean enablePrev;
 	
 	/* Functions */
 	menuInit *init;

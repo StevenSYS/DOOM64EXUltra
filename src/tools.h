@@ -1,5 +1,7 @@
-#ifndef __VISION_TOOLS__
-#define __VISION_TOOLS__
+#ifndef __TOOLS__
+#define __TOOLS__
+	// #define DISABLE_DEBUGMSG
+	
 	#ifdef DISABLE_DEBUGMSG
 		#define STUB()
 		#define INCOMPLETE()

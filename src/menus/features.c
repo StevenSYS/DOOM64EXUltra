@@ -30,4 +30,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(features, "Features", NULL, true);
+MENU_VAR(features, "Features", true);

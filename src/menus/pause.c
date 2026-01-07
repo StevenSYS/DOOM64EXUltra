@@ -63,4 +63,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(pause, "Pause", NULL, true);
+MENU_VAR(pause, "Pause", true);

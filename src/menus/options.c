@@ -30,4 +30,4 @@ MENU_RENDER {
 	return;
 }
 
-MENU_VAR(options, "Options", NULL, true);
+MENU_VAR(options, "Options", true);

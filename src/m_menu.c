@@ -30,6 +30,7 @@
 #include "doomdef.h"
 #include "s_sound.h"
 #include "m_shift.h"
+#include "i_imgui.h"
 #include "con_cvar.h"
 #include "st_stuff.h"
 #include "doomstat.h"
@@ -50,7 +51,6 @@ int map = 1;
 
 /* Static Variables */
 static menu_t *currentMenu = NULL;
-static menu_t *previousMenu = NULL;
 
 /* Functions */
 boolean M_Responder(event_t *event) {
@@ -92,15 +92,11 @@ void M_SetupMenu(
 	boolean noPrev
 ) {
 	if (newMenu != NULL) {
-		if (noPrev) {
-			previousMenu = NULL;
-		}
-		
 		if (
 			currentMenu != NULL &&
 			!noPrev
 		) {
-			previousMenu = currentMenu;
+			newMenu->prev = currentMenu;
 		}
 		
 		if (newMenu->init != NULL) {
@@ -114,15 +110,13 @@ void M_SetupMenu(
 
 void M_SetupPrevMenu() {
 	if (
-		currentMenu->previous != NULL ||
-		currentMenu->autoPrev
+		currentMenu != NULL &&
+		currentMenu->enablePrev
 	) {
-		if (previousMenu == NULL) {
+		if (currentMenu->prev == NULL) {
 			M_ClearMenus();
-		} else if (currentMenu->previous == NULL) {
-			M_SetupMenu(previousMenu, true);
 		} else {
-			M_SetupMenu(currentMenu->previous, true);
+			M_SetupMenu(currentMenu->prev, true);
 		}
 	}
 	return;
@@ -148,8 +142,8 @@ void M_StartControlPanel() {
 	
 	menuActive = true;
 	
-	previousMenu = NULL;
 	currentMenu = usergame ? &menu_pause : &menu_mainMenu;
+	currentMenu->prev = NULL;
 	
 	S_PauseSound();
 	return;
@@ -180,24 +174,7 @@ void M_Ticker() {
 }
 
 void M_Drawer() {
-	igSetNextWindowPos(
-		(ImVec2){ 0.0f, 0.0f },
-		ImGuiCond_FirstUseEver,
-		(ImVec2){ 0.0f, 0.0f }
-	);
-	igSetNextWindowSize(
-		igGetIO_Nil()->DisplaySize,
-		ImGuiCond_FirstUseEver
-	);
-	
-	igBegin(
-		currentMenu->title,
-		NULL,
-		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoBackground
-	);
+	imgui_startWindow(currentMenu->title);
 	
 	if (currentMenu != NULL) {
 		igText("%s", currentMenu->title);
@@ -205,7 +182,7 @@ void M_Drawer() {
 		currentMenu->render();
 	}
 	
-	igEnd();
+	imgui_endWindow();
 	return;
 }
 
@@ -227,7 +204,7 @@ void M_ClearMenus() {
 	
 	menuActive = false;
 	
-	currentMenu = previousMenu = NULL;
+	currentMenu = NULL;
 	
 	S_ResumeSound();
 	return;

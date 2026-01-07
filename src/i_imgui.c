@@ -31,6 +31,8 @@ int imgui_init(
 	SDL_GLContext *glContext,
 	SDL_Window *window
 ) {
+	ImVec4_c *colors;
+	
 	igCreateContext(NULL);
 	igStyleColorsDark(NULL);
 	
@@ -55,6 +57,14 @@ int imgui_init(
 	
 	igSetCurrentFont(NULL, FONT_SIZE, FONT_SIZE);
 	
+	/* Background Color */
+	colors = igGetStyle()->Colors;
+	
+	colors[ImGuiCol_WindowBg] = (ImVec4){
+		0.0f, 0.0f, 0.0f,
+		(float)0x80 / 255
+	};
+	
 	inited = 1;
 	return 0;
 }
@@ -70,6 +80,32 @@ void imgui_start() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 	igNewFrame();
+	return;
+}
+
+void imgui_startWindow(const char *title) {
+	igSetNextWindowPos(
+		(ImVec2){ 0.0f, 0.0f },
+		ImGuiCond_FirstUseEver,
+		(ImVec2){ 0.0f, 0.0f }
+	);
+	igSetNextWindowSize(
+		igGetIO_Nil()->DisplaySize,
+		ImGuiCond_FirstUseEver
+	);
+	
+	igBegin(
+		title,
+		NULL,
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoTitleBar
+	);
+	return;
+}
+
+void imgui_endWindow() {
+	igEnd();
 	return;
 }
 

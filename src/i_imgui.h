@@ -25,6 +25,8 @@ int imgui_init(
 );
 void imgui_event(SDL_Event *event);
 void imgui_start();
+void imgui_startWindow(const char *title);
+void imgui_endWindow();
 void imgui_render();
 void imgui_uninit();
 
