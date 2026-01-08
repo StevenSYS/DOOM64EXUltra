@@ -17,20 +17,40 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui/cimgui.h>
 
-#include "tools.h"
 #include "m_menu.h"
+#include "i_audio.h"
 
-MENU_EXTERNAL(volume);
+CVAR_EXTERNAL(s_gain);
+CVAR_EXTERNAL(s_sfxvol);
+CVAR_EXTERNAL(s_musvol);
 
 MENU_INIT {
 	return;
 }
 
 MENU_RENDER {
-	if (igButton("Volume", (ImVec2){ 0.0f, 0.0f })) {
-		M_SetupMenu(&menu_volume, false);
+	if (igSliderFloat(
+		"##masterVol",
+		&s_gain.value,
+		0.0f,
+		255.0f,
+		"Master Volume",
+		ImGuiSliderFlags_None
+	)) {
+		I_SetGain(s_gain.value);
+	}
+	
+	if (igSliderFloat(
+		"##sndVol",
+		&s_sfxvol.value,
+		0.0f,
+		255.0f,
+		"Sound Volume",
+		ImGuiSliderFlags_None
+	)) {
+		I_SetSoundVolume(s_sfxvol.value);
 	}
 	return;
 }
 
-MENU_VAR(options, "Options", true);
+MENU_VAR(volume, "Volume Control", true);

@@ -24,20 +24,25 @@
 
 #include "tools.h"
 #include "w_wad.h"
+#include "p_mobj.h"
 #include "z_zone.h"
 #include "doomdef.h"
 #include "i_audio.h"
 #include "i_system.h"
 #include "con_console.h"
 
+/* Macros */
+#define INCHES_PER_METER 39.3701f
+
+/* Calculate Left/Right Panning */
+#define CLP(_pan) (float)(volume - (_pan - 128)) / 256
+#define CRP(_pan) (float)(volume + (_pan - 128)) / 256
+
 /* Variables */
 int sfxCount = 0;
 
 /* Static Variables */
-static int *musLumpIndex;
-static int *sfxLumpIndex;
-
-static struct Sound sound;
+static sound_t sound;
 
 /* Static Functions */
 static int registerSounds() {
@@ -45,6 +50,7 @@ static int registerSounds() {
 	int len = 0;
 	unsigned char *data;
 	SDL_IOStream *ioStream;
+	MIX_Track *track;
 	MIX_Audio *audio;
 	
 	memset(
@@ -53,17 +59,6 @@ static int registerSounds() {
 		MAX_GAME_SFX * sizeof(MIX_Audio *)
 	);
 	sfxCount = 0;
-	
-	sfxLumpIndex = (int *)Z_Realloc(
-		sfxLumpIndex,
-		sizeof(int) * numlumps,
-		PU_STATIC,
-		0
-	);
-	
-	for (i = 0; i < numlumps; i++) {	
-		sfxLumpIndex[i] = -1;
-	}
 	
 	for (i = 0; i < numlumps; i++) {
 		if (sfxCount >= MAX_GAME_SFX) {
@@ -105,6 +100,8 @@ static int registerSounds() {
 		
 		ioStream = SDL_IOFromMem(data, len);
 		
+		track = MIX_CreateTrack(sound.mixer);
+		
 		audio = MIX_LoadAudio_IO(
 			sound.mixer,
 			ioStream,
@@ -112,13 +109,19 @@ static int registerSounds() {
 			true
 		);
 		
-		if (audio == NULL) {
+		if (
+			track == NULL ||
+			audio == NULL
+		) {
 			failCount++;
 		} else {
-			sound.sounds[sfxCount] = audio;
-			sfxLumpIndex[i] = sfxCount;
+			MIX_SetTrackAudio(track, audio);
+			sound.audio[sfxCount] = audio;
+			sound.sounds[sfxCount] = track;
 			successCount++;
 		}
+		
+		MIX_DestroyAudio(audio);
 		
 		sfxCount++;
 	}
@@ -129,6 +132,68 @@ static int registerSounds() {
 	
 	if (successCount > 0) {
 		I_Printf("Succsesfully registered %d sound effects.\n", successCount);
+	}
+	return 0;
+}
+
+static int startLoop(
+	MIX_Track *track,
+	int sfx_id,
+	int volume
+) {
+	if (volume <= 0) {
+		return 0;
+	}
+	
+	if (sound.mixer == NULL) {
+		return -1;
+	}
+	
+	if (!MIX_SetTrackAudio(track, sound.audio[sfx_id])) {
+		I_Printf("startLoop: MIX_SetTrackAudio: %s\n", SDL_GetError());
+		return -1;
+	}
+	
+	if (
+		sfx_id < 0 ||
+		sfx_id >= sfxCount ||
+		sound.sounds[sfx_id] == NULL
+	) {
+		CON_Warnf("startLoop: Invalid sfx_id %d or sound not loaded (num_sfx: %s)\n", sfx_id, sfxCount);
+		return -1;
+	}
+	
+	if (!MIX_PlayTrack(track, 0)) {
+		I_Printf("startLoop: MIX_PlayTrack: %s\n", SDL_GetError());
+		return -1;
+	}
+	
+	if (!MIX_SetTrackGain(
+		track,
+		(float)volume / 256
+	)) {
+		I_Printf("startLoop: MIX_SetTrackGain: %s\n", SDL_GetError());
+		return -1;
+	}
+	
+	if (!MIX_SetTrackLoops(track, -1)) {
+		I_Printf("startLoop: MIX_SetTrackLoops: %s\n", SDL_GetError());
+		return -1;
+	}
+	return 0;
+}
+
+static int stopLoop(MIX_Track *track) {
+	if (
+		sound.mixer == NULL ||
+		!MIX_TrackLooping(track)
+	) {
+		return -1;
+	}
+	
+	if (!MIX_StopTrack(track, 0)) {
+		I_Printf("stopLoop: MIX_StopTrack: %s\n", SDL_GetError());
+		return -1;
 	}
 	return 0;
 }
@@ -174,8 +239,18 @@ void FMOD_CreateSfxTracksInit() {
 	return;
 }
 
-int FMOD_StartSound(int sfx_id, sndsrc_t *origin, int volume, int pan) {
-	INCOMPLETE();
+int FMOD_StartSound(
+	int sfx_id,
+	sndsrc_t *origin,
+	int volume,
+	int pan
+) {
+	float leftVol;
+	float rightVol;
+	
+	if (volume <= 0) {
+		return 0;
+	}
 	
 	if (sound.mixer == NULL) {
 		return -1;
@@ -184,14 +259,36 @@ int FMOD_StartSound(int sfx_id, sndsrc_t *origin, int volume, int pan) {
 	if (
 		sfx_id < 0 ||
 		sfx_id >= sfxCount ||
-		!sound.sounds[sfx_id]
+		sound.sounds[sfx_id] == NULL
 	) {
 		CON_Warnf("FMOD_StartSound: Invalid sfx_id %d or sound not loaded (num_sfx: %s)\n", sfx_id, sfxCount);
 		return -1;
 	}
 	
-	if (!MIX_PlayAudio(sound.mixer, sound.sounds[sfx_id])) {
-		I_Printf("FMOD_StartSound: %s", SDL_GetError());
+	leftVol = CLP(pan);
+	rightVol = CRP(pan);
+	
+	if (leftVol > 1.0f) {
+		leftVol = 1.0f;
+	}
+	
+	if (rightVol > 1.0f) {
+		rightVol = 1.0f;
+	}
+	
+	if (!MIX_SetTrackStereo(
+		sound.sounds[sfx_id],
+		&(MIX_StereoGains){
+			leftVol,
+			rightVol
+		}
+	)) {
+		I_Printf("FMOD_StartSound: MIX_SetTrackStereo: %s\n", SDL_GetError());
+		return -1;
+	}
+	
+	if (!MIX_PlayTrack(sound.sounds[sfx_id], 0)) {
+		I_Printf("FMOD_StartSound: MIX_PlayTrack: %s\n", SDL_GetError());
 		return -1;
 	}
 	return 0;
@@ -202,8 +299,21 @@ int FMOD_StartSoundPlasma(int sfx_id) {
 	return 0;
 }
 
-void FMOD_StopSound(sndsrc_t *origin, int sfx_id) {
-	STUB();
+void FMOD_StopSound(
+	sndsrc_t *origin,
+	int sfx_id
+) {
+	if (
+		sound.mixer == NULL ||
+		!MIX_TrackPlaying(sound.sounds[sfx_id])
+	) {
+		return;
+	}
+	
+	if (!MIX_StopTrack(sound.sounds[sfx_id], 0)) {
+		I_Printf("FMOD_StopSound: MIX_StopTrack: %s\n", SDL_GetError());
+		return;
+	}
 	return;
 }
 
@@ -212,28 +322,34 @@ int FMOD_StartMusic(int mus_id) {
 	return 0;
 }
 
-void FMOD_StopMusic(sndsrc_t *origin, int mus_id) {
+void FMOD_StopMusic(
+	sndsrc_t *origin,
+	int mus_id
+) {
 	STUB();
 	return;
 }
 
-int FMOD_StartSFXLoop(int sfx_id, int volume) {
-	STUB();
-	return 0;
+int FMOD_StartSFXLoop(
+	int sfx_id,
+	int volume
+) {
+	return startLoop(sound.loop, sfx_id, volume);
 }
 
 int FMOD_StopSFXLoop() {
-	STUB();
-	return 0;
+	return stopLoop(sound.loop);
 }
 
-int FMOD_StartPlasmaLoop(int sfx_id, int volume) {
-	STUB();
-	return 0;
+int FMOD_StartPlasmaLoop(
+	int sfx_id,
+	int volume
+) {
+	return startLoop(sound.plasmaLoop, sfx_id, volume);
 }
 
 void FMOD_StopPlasmaLoop() {
-	STUB();
+	stopLoop(sound.plasmaLoop);
 	return;
 }
 
@@ -261,16 +377,19 @@ void I_InitSequencer() {
 	INCOMPLETE();
 	
 	if (!MIX_Init()) {
-		I_Error("I_InitSeqencer: Failed to initalize SDL3_mixer: %s\n", SDL_GetError());
+		I_Error("I_InitSeqencer: MIX_Init: %s\n", SDL_GetError());
 		return;
 	}
 	
 	sound.mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, sound.spec);
 	
 	if (sound.mixer == NULL) {
-		I_Error("I_InitSeqencer: Failed to initalize mixer: %s\n", SDL_GetError());
+		I_Error("I_InitSeqencer: MIX_CreateMixerDevice: %s\n", SDL_GetError());
 		return;
 	}
+	
+	sound.loop = MIX_CreateTrack(sound.mixer);
+	sound.plasmaLoop = MIX_CreateTrack(sound.mixer);
 	
 	if (registerSounds()) {
 		return;
@@ -283,14 +402,12 @@ void I_ShutdownSound() {
 	
 	INCOMPLETE();
 	
-	MIX_DestroyMixer(sound.mixer);
-	MIX_Quit();
-	
-	for (i = 0; i < MAX_GAME_SFX; i++) {
-		MIX_DestroyAudio(sound.sounds[i]);
+	for (i = 0; i < sfxCount; i++) {
+		MIX_DestroyTrack(sound.sounds[i]);
 	}
 	
-	Z_Free(sfxLumpIndex);
+	MIX_DestroyMixer(sound.mixer);
+	MIX_Quit();
 	return;
 }
 
@@ -299,7 +416,12 @@ void I_Update() {
 	return;
 }
 
-void I_UpdateChannel(int c, int volume, int pan, fixed_t x, fixed_t y) {
+void I_UpdateChannel(
+	int c,
+	int volume,
+	int pan,
+	fixed_t x, fixed_t y
+) {
 	STUB();
 	return;
 }
@@ -317,7 +439,7 @@ void I_SetMusicVolume(float volume) {
 void I_SetSoundVolume(float volume) {
 	MIX_SetMasterGain(
 		sound.mixer,
-		(float)volume / 255
+		volume / 255.0f
 	);
 	return;
 }
@@ -342,17 +464,15 @@ void I_SetGain(float db) {
 	return;
 }
 
-void I_StopSound(sndsrc_t *origin, int sfx_id) {
+void I_StopSound(
+	sndsrc_t *origin,
+	int sfx_id
+) {
 	STUB();
 	return;
 }
 
 void I_StartMusic(int mus_id) {
-	STUB();
-	return;
-}
-
-void I_UpdateListenerPosition(fixed_t player_world_x, fixed_t player_world_y_depth, fixed_t player_eye_world_z_height, angle_t view_angle) {
 	STUB();
 	return;
 }

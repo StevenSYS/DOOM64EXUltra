@@ -34,15 +34,21 @@ typedef struct {
 
 #define MAX_GAME_SFX 256
 
-struct Sound {
+typedef struct {
 	MIX_Mixer *mixer;
+	
+	MIX_Audio *audio[MAX_GAME_SFX];
+	MIX_Track *sounds[MAX_GAME_SFX];
+	
+	MIX_Track *loop;
+	MIX_Track *plasmaLoop;
+	
 	SDL_AudioSpec *spec;
-	MIX_Audio *sounds[MAX_GAME_SFX];
-};
+} sound_t;
 
 int I_GetMaxChannels(void);
 int I_GetVoiceCount(void);
-sndsrc_t *I_GetSoundSource(int c);
+sndsrc_t* I_GetSoundSource(int c);
 
 void Chan_SetMusicVolume(float volume);
 void Chan_SetSoundVolume(float volume);
@@ -50,11 +56,11 @@ void Seq_SetGain(float db);
 
 void FMOD_CreateMusicTracksInit(void);
 void FMOD_CreateSfxTracksInit(void);
-int FMOD_StartSound(int sfx_id, sndsrc_t *origin, int volume, int pan);
+int FMOD_StartSound(int sfx_id, sndsrc_t* origin, int volume, int pan);
 int FMOD_StartSoundPlasma(int sfx_id);
-void FMOD_StopSound(sndsrc_t *origin, int sfx_id);
+void FMOD_StopSound(sndsrc_t* origin, int sfx_id);
 int FMOD_StartMusic(int mus_id);
-void FMOD_StopMusic(sndsrc_t *origin, int mus_id);
+void FMOD_StopMusic(sndsrc_t* origin, int mus_id);
 int FMOD_StartSFXLoop(int sfx_id, int volume);
 int FMOD_StopSFXLoop(void);
 int FMOD_StartPlasmaLoop(int sfx_id, int volume);
@@ -75,9 +81,7 @@ void I_ResetSound(void);
 void I_PauseSound(void);
 void I_ResumeSound(void);
 void I_SetGain(float db);
-void I_StopSound(sndsrc_t *origin, int sfx_id);
+void I_StopSound(sndsrc_t* origin, int sfx_id);
 void I_StartMusic(int mus_id);
-
-void I_UpdateListenerPosition(fixed_t player_world_x, fixed_t player_world_y_depth, fixed_t player_eye_world_z_height, angle_t view_angle);
 
 #endif // __I_AUDIO_H__

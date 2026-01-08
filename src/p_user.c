@@ -614,14 +614,6 @@ void P_PlayerThink(player_t* player) {
 
     P_CalcHeight(player);
 
-    // Update FMOD listener position for the console player
-    if (player == &players[consoleplayer]) {
-        // Ensure player->mo is valid before dereferencing
-        if (player->mo) {
-            I_UpdateListenerPosition(player->mo->x, player->mo->y, player->viewz, player->mo->angle);
-        }
-    }
-
     if (player->mo->subsector->sector->flags &
         (MS_SECRET |
             MS_DAMAGEX5 |

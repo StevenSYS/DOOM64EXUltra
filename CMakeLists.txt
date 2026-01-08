@@ -14,11 +14,8 @@ set(CMAKE_C_FLAGS_RELEASE "-s -O2")
 
 add_subdirectory(src/submodules)
 
-file(
-	GLOB SOURCE_FILES
-	"src/*.c"
-	"src/menus/*.c"
-)
+file(GLOB SOURCE_FILES "src/*.c")
+file(GLOB_RECURSE MENU_FILES "src/menus/*.c" )
 
 find_package(SDL3 REQUIRED)
 find_package(SDL3_mixer REQUIRED)
@@ -38,7 +35,11 @@ configure_file(
 	@ONLY
 )
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_executable(
+	${PROJECT_NAME}
+	${SOURCE_FILES}
+	${MENU_FILES}
+)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY BUILD_RPATH ".")
 

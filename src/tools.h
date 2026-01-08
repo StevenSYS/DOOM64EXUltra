@@ -1,6 +1,6 @@
 #ifndef __TOOLS__
 #define __TOOLS__
-	// #define DISABLE_DEBUGMSG
+	#define DISABLE_DEBUGMSG
 	
 	#ifdef DISABLE_DEBUGMSG
 		#define STUB()
