@@ -23,6 +23,7 @@ int imgui_init(
 	SDL_GLContext *glContext,
 	SDL_Window *window
 );
+
 void imgui_event(SDL_Event *event);
 void imgui_start();
 void imgui_startWindow(const char *title);

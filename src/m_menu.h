@@ -23,6 +23,14 @@
 #include "con_cvar.h"
 
 /* Macros */
+
+/* Not Static */
+#define MENU_NS_INIT(_name) void _name()
+#define MENU_NS_RENDER(_name) void _name()
+
+#define MENU_INIT static MENU_NS_INIT(init)
+#define MENU_RENDER static MENU_NS_RENDER(render)
+
 #define MENU_VAR(_vName, _name, _enablePrev) \
 	menu_t menu_ ## _vName = { \
 		_name, \
@@ -32,16 +40,13 @@
 		&render \
 	}
 
-#define MENU_INIT static void init()
-
-#define MENU_RENDER static void render()
 
 #define MENU_EXTERNAL(_vName) \
 	extern menu_t menu_ ## _vName
 
 /* Typedef Functions */
-typedef void (menuRender)();
-typedef void (menuInit)();
+typedef MENU_NS_INIT((menu_init_f));
+typedef MENU_NS_RENDER((menu_render_f));
 
 /* Structs */
 typedef struct menu_s {
@@ -50,8 +55,8 @@ typedef struct menu_s {
 	boolean enablePrev;
 	
 	/* Functions */
-	menuInit *init;
-	menuRender *render;
+	menu_init_f *init;
+	menu_render_f *render;
 } menu_t;
 
 /* Functions */
@@ -59,11 +64,14 @@ void M_SetCvar(
 	cvar_t *cvar,
 	float value
 );
+
 boolean M_Responder(event_t *event);
+
 void M_SetupMenu(
 	menu_t *next,
 	boolean noPrev
 );
+
 void M_SetupPrevMenu();
 void M_Ticker();
 void M_Drawer();

@@ -186,7 +186,7 @@ static int startLoop(
 static int stopLoop(MIX_Track *track) {
 	if (
 		sound.mixer == NULL ||
-		!MIX_TrackLooping(track)
+		!MIX_GetTrackLoops(track)
 	) {
 		return -1;
 	}
@@ -437,7 +437,7 @@ void I_SetMusicVolume(float volume) {
 }
 
 void I_SetSoundVolume(float volume) {
-	MIX_SetMasterGain(
+	MIX_SetMixerGain(
 		sound.mixer,
 		volume / 255.0f
 	);

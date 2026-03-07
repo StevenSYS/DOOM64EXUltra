@@ -33,6 +33,10 @@ int imgui_init(
 ) {
 	ImVec4_c *colors;
 	
+	if (inited) {
+		return 1;
+	}
+	
 	igCreateContext(NULL);
 	igStyleColorsDark(NULL);
 	
@@ -116,6 +120,10 @@ void imgui_render() {
 }
 
 void imgui_uninit() {
+	if (!inited) {
+		return;
+	}
+	
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
 	igDestroyContext(NULL);
