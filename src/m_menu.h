@@ -41,8 +41,8 @@
 	}
 
 
-#define MENU_EXTERNAL(_vName) \
-	extern menu_t menu_ ## _vName
+#define MENU_EXTERNAL(_name) \
+	extern menu_t menu_ ## _name
 
 /* Typedef Functions */
 typedef MENU_NS_INIT((menu_init_f));
